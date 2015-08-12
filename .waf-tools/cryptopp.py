@@ -27,7 +27,7 @@ CRYPTOPP_DIR = ['/usr', '/usr/local', '/opt/local', '/sw', '/usr/local/ndn', '/o
 CRYPTOPP_VERSION_FILE = 'config.h'
 
 CRYPTOPP_CHECK_FRAGMENT = '''
-#include "../../src/security/cryptopp.hpp"
+#include "../../src/ndnSIM/ndn-cxx/src/security/cryptopp.hpp"
 #include <iostream>
 
 int
@@ -100,7 +100,7 @@ def check_cryptopp(self, *k, **kw):
         self.fatal('CryptoPP not found or is not usable')
 
     isLibWorking = False
-    for defines in ['', 'CRYPTOPP_DISABLE_ASM']:
+    for defines in [[], ['CRYPTOPP_DISABLE_ASM']]:
         try:
             self.check_cxx(msg='Checking if CryptoPP library works',
                            fragment=CRYPTOPP_CHECK_FRAGMENT,
