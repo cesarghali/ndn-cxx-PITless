@@ -76,9 +76,9 @@ public:
    * @note If the DataCallback is an empty function, this method does nothing.
    */
   void
-  invokeDataCallback(Data& data)
+  invokeDataCallback(const Data& data)
   {
-    m_onData(*m_interest, data);
+    m_onData(*m_interest, const_cast<Data&>(data));
   }
 
   /**
