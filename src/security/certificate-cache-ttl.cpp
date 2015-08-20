@@ -28,8 +28,7 @@ namespace ndn {
 CertificateCacheTtl::CertificateCacheTtl(boost::asio::io_service& io,
                                          const time::seconds& defaultTtl/* = time::seconds(3600)*/)
   : m_defaultTtl(defaultTtl)
-  , m_io(io)
-  , m_scheduler(m_io)
+  , m_scheduler(io)
 {
 }
 
@@ -40,7 +39,7 @@ CertificateCacheTtl::~CertificateCacheTtl()
 void
 CertificateCacheTtl::insertCertificate(shared_ptr<const IdentityCertificate> certificate)
 {
-  m_io.dispatch([this, certificate] { this->insert(certificate); });
+  m_scheduler.scheduleEvent(time::seconds(0), [this, certificate] { this->insert(certificate); });
 }
 
 shared_ptr<const IdentityCertificate>
@@ -56,7 +55,7 @@ CertificateCacheTtl::getCertificate(const Name& certificateName)
 void
 CertificateCacheTtl::reset()
 {
-  m_io.dispatch([this] { this->removeAll(); });
+  m_scheduler.scheduleEvent(time::seconds(0), [this] { this->removeAll(); });
 }
 
 size_t
