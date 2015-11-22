@@ -46,8 +46,24 @@ Interest::Interest(const Name& name)
 {
 }
 
+  Interest::Interest(const Name& name, const Name& supportingName)
+  : m_name(name)
+  , m_supportingName(supportingName)
+  , m_interestLifetime(time::milliseconds::min())
+  , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
+{
+}
+
 Interest::Interest(const Name& name, const time::milliseconds& interestLifetime)
   : m_name(name)
+  , m_interestLifetime(interestLifetime)
+  , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
+{
+}
+
+Interest::Interest(const Name& name, const Name& supportingName, const time::milliseconds& interestLifetime)
+  : m_name(name)
+  , m_supportingName(supportingName)
   , m_interestLifetime(interestLifetime)
   , m_selectedDelegationIndex(INVALID_SELECTED_DELEGATION_INDEX)
 {
@@ -259,6 +275,9 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
       totalLength += getSelectors().wireEncode(encoder);
     }
 
+  // Supporting Name
+  totalLength += getSupportingName().wireEncode(encoder);
+
   // Name
   totalLength += getName().wireEncode(encoder);
 
@@ -310,6 +329,9 @@ Interest::wireDecode(const Block& wire)
 
   // Name
   m_name.wireDecode(m_wire.get(tlv::Name));
+
+  // Supporting Name
+  m_supportingName.wireDecode(m_wire.get(tlv::Name));
 
   // Selectors
   Block::element_const_iterator val = m_wire.find(tlv::Selectors);
@@ -447,6 +469,7 @@ std::ostream&
 operator<<(std::ostream& os, const Interest& interest)
 {
   os << interest.getName();
+  os << interest.getSupportingName();
 
   char delim = '?';
 

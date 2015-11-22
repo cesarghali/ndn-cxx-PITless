@@ -68,6 +68,7 @@ public:
    *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
    */
   Interest(const Name& name);
+  Interest(const Name& name, const Name& supportingName);
 
   /** @brief Create a new Interest with the given name and interest lifetime
    *  @param name             The name for the interest.
@@ -76,6 +77,7 @@ public:
    *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
    */
   Interest(const Name& name, const time::milliseconds& interestLifetime);
+  Interest(const Name& name, const Name& supportingName, const time::milliseconds& interestLifetime);
 
   /** @brief Create from wire encoding
    *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
@@ -222,6 +224,20 @@ public: // Name and guiders
   setName(const Name& name)
   {
     m_name = name;
+    m_wire.reset();
+    return *this;
+  }
+
+  const Name&
+  getSupportingName() const
+  {
+    return m_supportingName;
+  }
+
+  Interest&
+  setSupportingName(const Name& supportingName)
+  {
+    m_supportingName = supportingName;
     m_wire.reset();
     return *this;
   }
@@ -437,6 +453,7 @@ public: // EqualityComparable concept
 
 private:
   Name m_name;
+  Name m_supportingName;
   Selectors m_selectors;
   mutable Block m_nonce;
   time::milliseconds m_interestLifetime;
