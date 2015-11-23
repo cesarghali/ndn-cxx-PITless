@@ -87,11 +87,11 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool unsignedPortion/* = false*/) c
   // MetaInfo
   totalLength += getMetaInfo().wireEncode(encoder);
 
-  // Name
-  totalLength += getName().wireEncode(encoder);
-
   // SupportingName
   totalLength += getSupportingName().wireEncode(encoder);
+
+  // Name
+  totalLength += getName().wireEncode(encoder);
 
   if (!unsignedPortion)
     {
