@@ -74,6 +74,7 @@ public:
    * Otherwise, Data::shared_from_this() will throw an exception.
    */
   Data(const Name& name);
+  Data(const Name& name, const Name& supportingName);
 
   /**
    * @brief Create a new Data object from wire encoding
@@ -156,6 +157,20 @@ public:
    */
   Data&
   setName(const Name& name);
+
+  /**
+   * @brief Get supporting name of the Data packet
+   */
+  const Name&
+  getSupportingName() const;
+
+  /**
+   * @brief Set supporting name to a copy of the given Name
+   *
+   * @return This Data so that you can chain calls to update values
+   */
+  Data&
+  setSupportingName(const Name& supportingName);
 
   //
 
@@ -319,6 +334,7 @@ protected:
 
 private:
   Name m_name;
+  Name m_supportingName;
   MetaInfo m_metaInfo;
   mutable Block m_content;
   Signature m_signature;
@@ -343,6 +359,12 @@ inline const Name&
 Data::getName() const
 {
   return m_name;
+}
+
+inline const Name&
+Data::getSupportingName() const
+{
+  return m_supportingName;
 }
 
 inline const MetaInfo&

@@ -42,6 +42,12 @@ Data::Data(const Name& name)
 {
 }
 
+  Data::Data(const Name& name, const Name& supportingName)
+  : m_name(name)
+  , m_supportingName(supportingName)
+{
+}
+
 Data::Data(const Block& wire)
 {
   wireDecode(wire);
@@ -83,6 +89,9 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool unsignedPortion/* = false*/) c
 
   // Name
   totalLength += getName().wireEncode(encoder);
+
+  // SupportingName
+  totalLength += getSupportingName().wireEncode(encoder);
 
   if (!unsignedPortion)
     {
@@ -140,12 +149,16 @@ Data::wireDecode(const Block& wire)
 
   // Data ::= DATA-TLV TLV-LENGTH
   //            Name
+  //            SupportingName
   //            MetaInfo
   //            Content
   //            Signature
 
   // Name
   m_name.wireDecode(m_wire.get(tlv::Name));
+
+  // SupportingName
+  m_supportingName.wireDecode(m_wire.get(tlv::Name));
 
   // MetaInfo
   m_metaInfo.wireDecode(m_wire.get(tlv::MetaInfo));
@@ -171,6 +184,15 @@ Data::setName(const Name& name)
 {
   onChanged();
   m_name = name;
+
+  return *this;
+}
+
+Data&
+Data::setSupportingName(const Name& supportingName)
+{
+  onChanged();
+  m_supportingName = supportingName;
 
   return *this;
 }
@@ -325,6 +347,7 @@ bool
 Data::operator==(const Data& other) const
 {
   return getName() == other.getName() &&
+    getSupportingName() == other.getSupportingName() &&
     getMetaInfo() == other.getMetaInfo() &&
     getContent() == other.getContent() &&
     getSignature() == other.getSignature();
@@ -340,6 +363,7 @@ std::ostream&
 operator<<(std::ostream& os, const Data& data)
 {
   os << "Name: " << data.getName() << "\n";
+  os << "SupportingName: " << data.getSupportingName() << "\n";
   os << "MetaInfo: " << data.getMetaInfo() << "\n";
   os << "Content: (size: " << data.getContent().value_size() << ")\n";
   os << "Signature: (type: " << data.getSignature().getType() <<
