@@ -42,7 +42,7 @@ Data::Data(const Name& name)
 {
 }
 
-  Data::Data(const Name& name, const Name& supportingName)
+  Data::Data(const Name& name, const std::string supportingName)
   : m_name(name)
   , m_supportingName(supportingName)
 {
@@ -87,8 +87,13 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool unsignedPortion/* = false*/) c
   // MetaInfo
   totalLength += getMetaInfo().wireEncode(encoder);
 
-  // SupportingName
-  totalLength += getSupportingName().wireEncode(encoder);
+  // Supporting Name
+  if (hasSupportingName())
+    {
+      totalLength += prependStringBlock(encoder,
+                                        tlv::SupportingName,
+                                        m_supportingName);
+    }
 
   // Name
   totalLength += getName().wireEncode(encoder);
@@ -157,8 +162,16 @@ Data::wireDecode(const Block& wire)
   // Name
   m_name.wireDecode(m_wire.get(tlv::Name));
 
-  // SupportingName
-  m_supportingName.wireDecode(m_wire.get(tlv::Name));
+  // Supporting Name
+  Block::element_const_iterator val = m_wire.find(tlv::SupportingName);
+  if (val != m_wire.elements_end())
+    {
+      m_supportingName = readString(*val);
+    }
+  else
+    {
+      m_supportingName = "";
+    }
 
   // MetaInfo
   m_metaInfo.wireDecode(m_wire.get(tlv::MetaInfo));
@@ -174,7 +187,7 @@ Data::wireDecode(const Block& wire)
   m_signature.setInfo(m_wire.get(tlv::SignatureInfo));
 
   // SignatureValue
-  Block::element_const_iterator val = m_wire.find(tlv::SignatureValue);
+  val = m_wire.find(tlv::SignatureValue);
   if (val != m_wire.elements_end())
     m_signature.setValue(*val);
 }
@@ -189,7 +202,7 @@ Data::setName(const Name& name)
 }
 
 Data&
-Data::setSupportingName(const Name& supportingName)
+Data::setSupportingName(const std::string supportingName)
 {
   onChanged();
   m_supportingName = supportingName;

@@ -31,6 +31,8 @@
 #include "tag-host.hpp"
 #include "link.hpp"
 
+#include <string>
+
 namespace ndn {
 
 class Data;
@@ -68,7 +70,7 @@ public:
    *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
    */
   Interest(const Name& name);
-  Interest(const Name& name, const Name& supportingName);
+  Interest(const Name& name, const std::string supportingName);
 
   /** @brief Create a new Interest with the given name and interest lifetime
    *  @param name             The name for the interest.
@@ -77,7 +79,7 @@ public:
    *           using `make_shared`. Otherwise, .shared_from_this() will throw an exception.
    */
   Interest(const Name& name, const time::milliseconds& interestLifetime);
-  Interest(const Name& name, const Name& supportingName, const time::milliseconds& interestLifetime);
+  Interest(const Name& name, const std::string  supportingName, const time::milliseconds& interestLifetime);
 
   /** @brief Create from wire encoding
    *  @warning In certain contexts that use Interest::shared_from_this(), Interest must be created
@@ -228,14 +230,14 @@ public: // Name and guiders
     return *this;
   }
 
-  const Name&
+  const std::string
   getSupportingName() const
   {
     return m_supportingName;
   }
 
   Interest&
-  setSupportingName(const Name& supportingName)
+  setSupportingName(const std::string supportingName)
   {
     m_supportingName = supportingName;
     m_wire.reset();
@@ -338,6 +340,12 @@ public: // Selectors
   hasSelectors() const
   {
     return !m_selectors.empty();
+  }
+
+  bool
+  hasSupportingName() const
+  {
+    return (m_supportingName != "");
   }
 
   const Selectors&
@@ -453,7 +461,7 @@ public: // EqualityComparable concept
 
 private:
   Name m_name;
-  Name m_supportingName;
+  std::string m_supportingName = "";
   Selectors m_selectors;
   mutable Block m_nonce;
   time::milliseconds m_interestLifetime;

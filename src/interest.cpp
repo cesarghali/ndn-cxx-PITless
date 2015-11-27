@@ -46,7 +46,7 @@ Interest::Interest(const Name& name)
 {
 }
 
-  Interest::Interest(const Name& name, const Name& supportingName)
+  Interest::Interest(const Name& name, const std::string supportingName)
   : m_name(name)
   , m_supportingName(supportingName)
   , m_interestLifetime(time::milliseconds::min())
@@ -61,7 +61,7 @@ Interest::Interest(const Name& name, const time::milliseconds& interestLifetime)
 {
 }
 
-Interest::Interest(const Name& name, const Name& supportingName, const time::milliseconds& interestLifetime)
+  Interest::Interest(const Name& name, const std::string  supportingName, const time::milliseconds& interestLifetime)
   : m_name(name)
   , m_supportingName(supportingName)
   , m_interestLifetime(interestLifetime)
@@ -276,7 +276,12 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
     }
 
   // Supporting Name
-  totalLength += getSupportingName().wireEncode(encoder);
+  if (hasSupportingName())
+    {
+      totalLength += prependStringBlock(encoder,
+                                        tlv::SupportingName,
+                                        m_supportingName);
+    }
 
   // Name
   totalLength += getName().wireEncode(encoder);
@@ -331,10 +336,18 @@ Interest::wireDecode(const Block& wire)
   m_name.wireDecode(m_wire.get(tlv::Name));
 
   // Supporting Name
-  m_supportingName.wireDecode(m_wire.get(tlv::Name));
+  Block::element_const_iterator val = m_wire.find(tlv::SupportingName);
+  if (val != m_wire.elements_end())
+    {
+      m_supportingName = readString(*val);
+    }
+  else
+    {
+      m_supportingName = "";
+    }
 
   // Selectors
-  Block::element_const_iterator val = m_wire.find(tlv::Selectors);
+  val = m_wire.find(tlv::Selectors);
   if (val != m_wire.elements_end())
     {
       m_selectors.wireDecode(*val);

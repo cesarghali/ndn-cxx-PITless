@@ -32,6 +32,8 @@
 #include "management/nfd-local-control-header.hpp"
 #include "tag-host.hpp"
 
+#include <string>
+
 namespace ndn {
 
 /** @brief represents a Data packet
@@ -74,7 +76,7 @@ public:
    * Otherwise, Data::shared_from_this() will throw an exception.
    */
   Data(const Name& name);
-  Data(const Name& name, const Name& supportingName);
+  Data(const Name& name, const std::string supportingName);
 
   /**
    * @brief Create a new Data object from wire encoding
@@ -142,6 +144,12 @@ public:
   bool
   hasWire() const;
 
+  bool
+  hasSupportingName() const
+  {
+    return (m_supportingName != "");
+  }
+
   ////////////////////////////////////////////////////////////////////
 
   /**
@@ -161,7 +169,7 @@ public:
   /**
    * @brief Get supporting name of the Data packet
    */
-  const Name&
+  const std::string
   getSupportingName() const;
 
   /**
@@ -170,7 +178,7 @@ public:
    * @return This Data so that you can chain calls to update values
    */
   Data&
-  setSupportingName(const Name& supportingName);
+  setSupportingName(const std::string supportingName);
 
   //
 
@@ -334,7 +342,7 @@ protected:
 
 private:
   Name m_name;
-  Name m_supportingName;
+  std::string m_supportingName = "";
   MetaInfo m_metaInfo;
   mutable Block m_content;
   Signature m_signature;
@@ -361,7 +369,7 @@ Data::getName() const
   return m_name;
 }
 
-inline const Name&
+inline const std::string
 Data::getSupportingName() const
 {
   return m_supportingName;
